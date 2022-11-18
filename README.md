@@ -1,6 +1,6 @@
 # flask-tasks
 
-This is an generic Flask RESTful API written in Python that can receive task requests with some arguments, run some logic with the arguments provided and store the results on a SQL database. The results then can be retrieved from the API.
+This is an generic Flask RESTful API written in Python that can receive task requests with some arguments, run some logic with the arguments provided and store the results on a SQL database. The results can then be retrieved from the API.
 
 ## Main features
 
@@ -96,35 +96,87 @@ python janitor.py
 
 ## API endpoints
 
-- /task/new
+### /task/new
 
-  Method: ```POST```
+Method: ```POST```
 
-  This endpoint will register a new task in the server, passing some arguments in ```application/json``` format and returning the task info in ```application/json``` format:
+This endpoint will register a new task in the server, passing some arguments in ```application/json``` format and returning the task info in ```application/json``` format:
 
-  Example of request:
+Example of request:
 
-  Parameters:
-  ```json
-    {
-        "required_arg":"test"
-    }
-  ```
+Parameters:
+```json
+{
+    "required_arg":"test"
+}
+```
+
+```bash
+curl -X POST localhost:5000/task/new -H 'Content-Type: application/json' -d '{"required_arg":"test"}'
+```
+
+Example of response:
+
+```json
+{
+"id": 192,
+"result": null,
+"args": {"required_arg": "test"},
+"status": "waiting",
+"expire": 1668797956,
+"required_arg": "test",
+"created": 1668797946
+}
+```
+
+### /task/```<task_id>```/view
+
+Method: ```GET```
+
+This endpoint will return the current data for the task with id ```task_id``` in ```application/json``` format:
+
+Example of request:
+
+Parameters: ```<task_id>```
+
+```bash
+curl -X GET localhost:5000/task/1/view
+```
+
+Example of response:
+
+```json
+{
+"id": 1,
+"result": {"message": "some_message"},
+"args": {"required_arg": "test"},
+"status": "done",
+"expire": 1668797956,
+"required_arg": "test",
+"created": 1668797946
+}
+```
+
+The status of a retrieved task can be:
+- ```waiting```
   
-  ```bash
-    curl -X POST localhost:5000/task/new -H 'Content-Type: application/json' -d '{"required_arg":"test"}'
-  ```
+  Means that the task has been registered but has not yet been computed
+- ```running```
+  
+  Means that the task has been registered and is actually being computed
+- ```done```
+  
+  Means that the task has been registered and have already been computed
 
-  Example of response:
+## The ```handler```
 
-  ```json
-    {
-    "id": 192,
-    "result": null,
-    "args": {"required_arg": "test"},
-    "status": "waiting",
-    "expire": 1668797956,
-    "required_arg": "test",
-    "created": 1668797946
-    }
-  ```
+The handler is a module of the system that will scan through the database and get the tasks with ```waiting``` status.
+
+Then, it will run the ```ExecuteWhenRunningTask(task_id, args)``` function which should return a result for the task. After that, the result is stored in the ```result``` key of the task in the database. This function can be customized to fulfill your needs.
+
+The handler will mark the current task row as locked in the database, so that the other instances of handlers can't edit at the same time.
+
+## The ```janitor```
+The janitor is a module of the system that will scan through the database and get the tasks that exceeded the maximum data permanency time (```MAX_TASK_TIME``` variable) in the database.
+
+Then, it will delete the task from the database. The janitor will mark the current task row as locked in the database, so that the other instances of handlers can't edit at the same time. 
