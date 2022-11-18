@@ -2,7 +2,7 @@ from models import *
 import time
 import werkzeug
 import os
-max_task_time = int(os.getenv('MAX_TASK_TIME'))
+max_task_time = float(os.getenv('MAX_TASK_TIME'))
 
 def ExecuteWhenRunningTask(task_id, args):
     return "none"
@@ -28,11 +28,13 @@ def TaskHandler():
 
             try:
                 task.result = RunTask(task_id=task.id, args=task.args)
+                print(f"[handler] task {task.id} is finished", flush=True)
+                task.status = "done"
+                db.session.commit()
             except:
                 print(f"[handler] task {task.id} failed to run", flush=True)
                 task.status = "waiting"
+                db.session.commit()
     
-            print(f"[handler] task {task.id} is finished", flush=True)
 
-            task.status = "done"
-            db.session.commit()
+           
