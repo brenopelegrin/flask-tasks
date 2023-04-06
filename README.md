@@ -1,8 +1,8 @@
 # flask-tasks
 
-This is a generic Flask RESTful API written in Python that can receive task requests with some arguments, run some logic with the arguments provided and store the results on a SQL database. The results can then be retrieved from the API.
+:warning: **This project development is abandoned and it will not receive any future updates. The project has migrated to Docker and is being constantly updated in a new repository. Please check the [flask-tasks-docker](https://github.com/brenopelegrin/flask-tasks-docker) repository** 
 
-:warning: **This repository might be outdated in terms of features and fixes. For more frequent and recent updates, please check the [flask-tasks-docker](https://github.com/brenopelegrin/flask-tasks-docker) repository** 
+This is a generic Flask RESTful API written in Python that can receive task requests with some arguments, run some logic with the arguments provided and store the results on a SQL database. The results can then be retrieved from the API.
 
 ## Main features
 
